@@ -1,5 +1,9 @@
 name: Deployment
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+      - dev
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -39,6 +43,15 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
+
+      - name: Set up environment variables
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "${{ secrets.PROD_ENV }}" > .env
+          else
+            echo "${{ secrets.DEV_ENV }}" > .env
+          fi
+
       - name: Build project
         run: npm run build
       - name: Get Js file name
@@ -63,5 +76,7 @@ jobs:
         run: ls -la
       - name: Output script filename
         run: echo "Script filename is ${{ needs.build.outputs.script-filename }}"
+      - name: Output Env
+        run: cat .env
       - name: Deploy to server
         run: echo "Deploying to server..."
