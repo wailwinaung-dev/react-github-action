@@ -14,7 +14,7 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm test
-  deploy:
+  build:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -28,5 +28,13 @@ jobs:
         run: npm ci
       - name: Build project
         run: npm run build
-      - name: Deploy to server
-        run: echo "Deploying to server..."
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Application
+        run: echo "Deploying application..."
