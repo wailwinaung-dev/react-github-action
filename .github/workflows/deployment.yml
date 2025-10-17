@@ -32,8 +32,10 @@ jobs:
       - name: Build project
         run: npm run build
       - name: Get Js file name
+        id: get-filename
         run: |
-          "JS_FILENAME=$(find dist/assets -name '*.js') echo "filename=$JS_FILENAME" >> $GITHUB_OUTPUT"
+          JS_FILENAME=$(find dist/assets -name "*.js" -printf "%f\n")
+          echo "script-file=$JS_FILENAME" >> $GITHUB_OUTPUT
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
