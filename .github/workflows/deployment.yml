@@ -46,6 +46,7 @@ jobs:
 
       - name: Set up environment variables
         run: |
+          cp .env.example .env
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "${{ secrets.PROD_ENV }}" > .env
           else
