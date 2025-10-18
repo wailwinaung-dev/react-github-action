@@ -52,6 +52,7 @@ jobs:
           else
             echo "${{ secrets.DEV_ENV }}" > .env
           fi
+          cat .env
 
       - name: Build project
         run: npm run build
@@ -77,7 +78,5 @@ jobs:
         run: ls -la
       - name: Output script filename
         run: echo "Script filename is ${{ needs.build.outputs.script-filename }}"
-      - name: Output Env
-        run: cat .env
       - name: Deploy to server
         run: echo "Deploying to server..."
