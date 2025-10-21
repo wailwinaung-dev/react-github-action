@@ -87,3 +87,10 @@ jobs:
         run: echo "Script filename is ${{ needs.build.outputs.script-filename }}"
       - name: Deploy to server
         run: echo "Deploying to server..."
+  report:
+    needs: deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report deployment failure
+        run: echo "Deployment failed. Please check the logs above for details."
