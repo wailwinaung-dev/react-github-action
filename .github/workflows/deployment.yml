@@ -22,7 +22,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run tests
+        id: test
         run: npm test
+      - name: Report failed tests
+        if: failure() && steps.test.outcome == 'failure'
+        run: |
+          echo "Some tests have failed. Reporting..."
   build:
     needs: test
     runs-on: ubuntu-latest
