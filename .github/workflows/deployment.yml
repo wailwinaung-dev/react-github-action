@@ -31,12 +31,15 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
-    outputs:
-      #context=step, id=get-filename, key=filename
-      script-filename: ${{ steps.get-filename.outputs.filename }}
+    env:
+      DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      DOCKER_USERNAME: wlaung
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
@@ -60,33 +63,11 @@ jobs:
             echo "${{ secrets.DEV_ENV }}" > .env
           fi
           cat .env
-
-      - name: Build project
-        run: npm run build
-      - name: Get Js file name
-        id: get-filename
+      - name: Build application
         run: |
-          JS_FILENAME=$(find dist/assets -name "*.js" -printf "%f\n")
-          echo "filename=$JS_FILENAME" >> $GITHUB_OUTPUT
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-      - name: Output dist
-        run: ls -la
-      - name: Output script filename
-        run: echo "Script filename is ${{ needs.build.outputs.script-filename }}"
-      - name: Deploy to server
-        run: echo "Deploying to server..."
+          docker login -u $DOCKER_USERNAME -p $DOCKER_ACCESS_TOKEN
+          docker buildx build --platform linux/amd64,linux/arm64 -t --push $DOCKER_USERNAME/myapp:latest .
+
   report:
     needs: deploy
     if: failure()
